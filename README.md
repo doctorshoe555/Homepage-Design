@@ -7,8 +7,8 @@ Komplett neu aufgebauter Webauftritt für [lappmuller.lappgroup.com/en](https://
 ## Ansehen
 
 - **Lokal:** `docs/index.html` im Browser öffnen, ohne Server und ohne Build-Schritt. Die Fotos werden dabei direkt von Wikimedia Commons geladen.
-- **Online über GitHub Pages (empfohlen):** Settings → Pages → Source **„GitHub Actions“**. Der Workflow `.github/workflows/pages.yml` lädt bei jedem Push auf `main` die Fotos herunter, baut die Seite und veröffentlicht sie, sodass die Bilder selbst gehostet werden.
-- Alternativ: Source „Deploy from a branch“, Branch `main`, Ordner `/docs` (Fotos dann von Wikimedia eingebunden).
+- **Online über GitHub Pages:** Settings → Pages → Source „Deploy from a branch“, Branch `main`, Ordner `/docs`. Die Fotos werden dann von Wikimedia eingebunden.
+- **Optional mit selbst gehosteten Fotos:** Source auf „GitHub Actions“ umstellen und den Workflow „Deploy site to GitHub Pages“ im Actions-Tab starten.
 
 ## Bilder
 
