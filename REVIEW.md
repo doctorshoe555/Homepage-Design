@@ -75,6 +75,6 @@ LAPP Muller hat ein starkes, seltenes Angebot – kundenspezifische Spezialkabel
 - Alle als Entwurf markierten Texte (insb. Fallstudien und Prozessschritte) mit Produktmanagement abstimmen; die Originale liegen bisher nur als Bild vor.
 - Konkrete Zertifikate (z. B. ISO 9001, DNV, UL) und Normen bestätigen, bevor sie genannt werden.
 - Formular-Backend anbinden (CRM/Mail), DSGVO-Einwilligung juristisch prüfen.
-- Eigene Fotos aus Fertigung und Prüffeld ergänzen; das Konzept arbeitet bewusst mit technischen Zeichnungen statt Stockfotos.
+- Eigene Fotos aus Fertigung und Prüffeld ergänzen. Die Wikimedia-Fotos im Konzept sind Platzhalter; bei den als „Creative Commons“ markierten Bildern die genaue Lizenzversion auf der Commons-Seite prüfen und im Bildnachweis eintragen.
 - Webfont selbst hosten (z. B. Barlow, OFL) statt Systemschriften; keine Google-Fonts-Einbindung (DSGVO).
 - Französische Version mit `hreflang`-Paaren aufsetzen; der Generator ist dafür vorbereitet.

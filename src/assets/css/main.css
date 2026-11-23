@@ -326,6 +326,41 @@ table.spec tr:nth-child(even) td, table.spec tr:nth-child(even) th { background:
 /* ---------- drawings ---------- */
 .xsection text { font: 500 13px var(--font); fill: var(--black); }
 
+
+/* ---------- photos ---------- */
+img { height: auto; }
+.stage-visual { background: #2c2c2c; padding: 0; }
+.stage-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; color: transparent; }
+.stage-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.1) 45%, rgba(0,0,0,0) 70%); }
+
+.page-hero.has-image { position: relative; overflow: hidden; }
+.page-hero.has-image .wrap { display: block; min-height: clamp(22rem, 32vw, 27rem); padding-block: clamp(2rem, 5vw, 3.5rem); }
+.page-hero-text { width: 50%; padding-right: 3rem; }
+.page-hero-media { position: absolute; top: 0; right: 0; bottom: 0; width: 46%; margin: 0; background: var(--dark); }
+.page-hero-media img { width: 100%; height: 100%; object-fit: cover; color: transparent; }
+.hero-badge { position: absolute; left: -2.75rem; bottom: 2rem; width: 5.5rem; height: 5.5rem; background: var(--white); border-radius: 50%; padding: .35rem; box-shadow: 0 6px 16px -6px rgba(0,0,0,.35); display: grid; place-items: center; }
+.hero-badge svg { width: 100%; height: 100%; max-width: none !important; }
+
+.card-media.has-photo { position: relative; background: var(--grey-2); }
+.card-media.has-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; color: transparent; }
+.card-badge { position: absolute; left: .75rem; bottom: .75rem; width: 3rem; height: 3rem; background: var(--white); border-radius: 50%; padding: .2rem; box-shadow: 0 3px 10px -4px rgba(0,0,0,.4); }
+.card-badge:empty { display: none; }
+.card-badge .mini { width: 100% !important; height: 100%; }
+.card:hover .card-media img { transform: scale(1.03); }
+.card-media img { transition: transform .4s ease; }
+
+.banner { position: relative; margin: 0; height: clamp(14rem, 30vw, 24rem); background: var(--dark); overflow: hidden; }
+.banner img { width: 100%; height: 100%; object-fit: cover; color: transparent; }
+.banner figcaption { position: absolute; left: 0; bottom: 0; background: var(--white); padding: .8rem 1.25rem; font-size: .9rem; max-width: min(36rem, 90%); border-top: 4px solid var(--orange); }
+
+.product { padding: 0; display: flex; flex-direction: column; }
+.product-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--grey-2); color: transparent; }
+.product-body { padding: 1.5rem; }
+
+.table-scroll { overflow-x: auto; }
+table.credits th { width: auto; }
+table.credits thead th { background: var(--grey-bg); }
+
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
   .header-row { min-height: 4.25rem; gap: 1rem; }
@@ -351,6 +386,13 @@ table.spec tr:nth-child(even) td, table.spec tr:nth-child(even) th { background:
   .header-actions .btn { display: none; }
   .split, .split.wide-left, .section-head, .page-hero .wrap, .cta-band .wrap { grid-template-columns: 1fr; }
   .page-hero .xsection { display: none; }
+  .page-hero.has-image { display: flex; flex-direction: column-reverse; }
+  .page-hero.has-image .wrap { min-height: 0; }
+  .page-hero-text { width: auto; padding-right: 0; }
+  .page-hero-media { position: relative; width: 100%; height: 14rem; }
+  .hero-badge .xsection { display: block; }
+  .hero-badge { left: auto; right: 1rem; bottom: -1.5rem; width: 4rem; height: 4rem; }
+  .stage-visual::after { display: none; }
   .slide { flex-direction: column; align-items: stretch; min-height: 0; }
   .stage-visual { position: relative; height: 13rem; justify-content: center; padding: 0; }
   .stage-art { width: 12rem; }
