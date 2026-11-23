@@ -37,9 +37,17 @@ python3 build.py
 | Service | Downloads, Kontakt (mit Formular), Projektanfrage in 3 Schritten |
 | Sonstiges | Impressum/Datenschutz (Platzhalter), 404 |
 
-## Design-Idee
+## Design: am LAPP.com-Auftritt ausgerichtet
 
-Die technische Zeichnung als Markensprache: Jede Branche bekommt einen eigenen, berechneten Kabelquerschnitt als SVG statt Stockfotos. Spezifikationen erscheinen als Schriftfeld wie auf einer Konstruktionszeichnung, der Footer ist als Zeichnungs-Schriftfeld gebaut. LAPP-Orange ist ausschließlich für Aktionen reserviert. Auf der Startseite zeichnet sich der Querschnitt einmalig beim Laden auf; bei reduzierter Bewegung entfällt die Animation.
+Layout und Look & Feel folgen www.lapp.com, damit LAPP Muller klar als Teil der LAPP Gruppe erkennbar ist:
+
+- **Header wie LAPP.com:** graue Service-Leiste (Download Center, Telefon, LAPP Group, Sprache), darunter weißer Header mit Logo links, Hauptnavigation *Industries / Solutions / Service / Company* mit Mega-Menüs über die volle Breite, rechts Kontakt und orangem CTA
+- **Bühne mit Textbox:** Slider mit weißer Textbox und orangem Akzent, manuell bedienbar (kein Autoplay)
+- **Startseite nach LAPP-Muster:** Tabs mit Karten-Raster („Discover“), „Our range of services for you“, „More than just a cable manufacturer“, „Top links“, Block „Do you have any questions?“
+- **Heller Footer** mit vier Spalten, Social Links und Legal-Leiste (Imprint, Terms, Privacy notice, Cookie settings)
+- **Farben:** LAPP-CI-Orange (HKS 7, RGB 231/120/23) für Akzente, ein etwas dunkleres Orange für Buttons, damit weiße Schrift WCAG AA erfüllt; Schwarz, Grautöne
+- **Schrift:** CI-Schrift CorpoS ist hinterlegt, sobald sie lizenziert eingebunden wird; bis dahin Fallback auf Helvetica/Arial
+- **Bildsprache:** Statt Fotos berechnete Kabelquerschnitte als SVG, bis eigene Produkt- und Fertigungsfotos vorliegen
 
 ## Qualität
 

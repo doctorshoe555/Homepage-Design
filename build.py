@@ -360,73 +360,143 @@ def rel(depth: int) -> str:
     return "../" * depth
 
 
+ICON = {
+    "search": '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2"/></svg>',
+    "phone": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11.4 11.4 0 003.6.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1z" fill="currentColor"/></svg>',
+    "mail": '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    "doc": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M9 13h8M9 17h8" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    "gear": '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2"/></svg>',
+    "send": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    "chev": '<svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    "arrow": '<svg class="arr" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+}
+
+
+def nav_menu(p: str) -> list[tuple[str, str, list[tuple[str, list[tuple[str, str]]]]]]:
+    """Main navigation in the LAPP.com pattern: section, then grouped columns of links."""
+    ind_a = [(i["name"], f"industries/{i['slug']}.html") for i in INDUSTRIES[:4]]
+    ind_b = [(i["name"], f"industries/{i['slug']}.html") for i in INDUSTRIES[4:]]
+    return [
+        ("industries", "Industries", [
+            ("Energy and defence", ind_a),
+            ("Industry and special applications", ind_b),
+            ("Overview", [("All industries", "industries/index.html"), ("Case studies", "case-studies/index.html")]),
+        ]),
+        ("capabilities", "Solutions", [
+            ("Custom cables", [("Cable engineering", "capabilities.html#engineering"),
+                               ("Connectors and assemblies", "capabilities.html#assemblies"),
+                               ("Testing and certification", "capabilities.html#testing"),
+                               ("Our process", "capabilities.html#process")]),
+            ("Product ranges", [("STS-Flex shore power", "industries/electrification.html#prod-title"),
+                                ("MULL'AIR 400 ground power", "industries/electrification.html#prod-title"),
+                                ("Marine and underwater cables", "industries/marine-subsea.html")]),
+        ]),
+        ("service", "Service", [
+            ("Get in touch", [("Start a project", "start-a-project.html"), ("Contact", "contact.html")]),
+            ("Documents", [("Download center", "downloads.html"), ("Terms of trade", "downloads.html#commercial-documents")]),
+        ]),
+        ("company", "Company", [
+            ("LAPP Muller", [("About us", "about.html"), ("LAPP Group", "about.html#lapp-group"),
+                             ("Sustainability", "about.html#sustainability"), ("Compliance and integrity", "about.html#compliance")]),
+            ("Join us", [("Career", "careers.html")]),
+        ]),
+    ]
+
+
+SECTION_OF = {"industries": "industries", "cases": "industries", "capabilities": "capabilities",
+              "downloads": "service", "contact": "service", "rfq": "service",
+              "about": "company", "careers": "company"}
+
+
 def header(p: str, section: str) -> str:
-    mega = "".join(
-        f'<a href="{p}industries/{i["slug"]}.html"><strong>{i["name"]}</strong><span>{i["short"]}</span></a>'
-        for i in INDUSTRIES)
-    def item(key, href, label):
-        cur = ' aria-current="page"' if section == key else ""
-        return f'<li><a href="{p}{href}"{cur}>{label}</a></li>'
-    ind_cls = ' class="nav-item is-section"' if section == "industries" else ' class="nav-item"'
+    active = SECTION_OF.get(section, "")
+    items = []
+    for key, label, groups in nav_menu(p):
+        cols = "".join(
+            f'<div class="mega-col"><p class="mega-head">{g}</p><ul>' +
+            "".join(f'<li><a href="{p}{href}">{t}</a></li>' for t, href in links) + "</ul></div>"
+            for g, links in groups)
+        cls = "nav-item is-section" if key == active else "nav-item"
+        items.append(
+            f'<li class="{cls}"><button class="nav-trigger" aria-expanded="false" aria-controls="mega-{key}">{label}{ICON["chev"]}</button>'
+            f'<div class="mega" id="mega-{key}"><div class="wrap mega-inner"><p class="mega-title">{label}</p><div class="mega-cols">{cols}</div></div></div></li>')
     return f"""
-<a class="skip" href="#main">Skip to content</a>
-<div class="concept-bar"><div class="wrap">Redesign concept for review. Not the official LAPP Muller website.</div></div>
-<header class="site-header">
+<a class="skip" href="#main">Jump to main content</a>
+<div class="utility-bar">
   <div class="wrap">
+    <p class="concept-note">Redesign concept, not the official website</p>
+    <ul class="utility-links">
+      <li><a href="{p}downloads.html">{ICON['doc']}<span>Download center</span></a></li>
+      <li><a href="tel:{CO['phone_href']}">{ICON['phone']}<span>{CO['phone']}</span></a></li>
+      <li><a href="{CO['group']}" rel="noopener">LAPP Group</a></li>
+      <li class="lang"><span class="visually-hidden">Language: </span><a href="#" aria-current="true">EN</a><span aria-hidden="true">|</span><a href="{CO['fr_site']}" hreflang="fr" lang="fr">FR</a></li>
+    </ul>
+  </div>
+</div>
+<header class="site-header">
+  <div class="wrap header-row">
     <a class="brand" href="{p}index.html" aria-label="LAPP Muller home"><span class="brand-lapp">LAPP</span><span class="brand-muller">MULLER</span></a>
-    <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="nav" id="site-nav" aria-label="Main">
-      <ul>
-        <li{ind_cls}>
-          <button class="nav-trigger" aria-expanded="false" aria-controls="mega-industries">Industries
-            <svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
-          <div class="mega" id="mega-industries">{mega}<a class="mega-all" href="{p}industries/index.html"><strong>All industries</strong></a></div>
-        </li>
-        {item("capabilities", "capabilities.html", "Capabilities")}
-        {item("cases", "case-studies/index.html", "Case studies")}
-        {item("about", "about.html", "About us")}
-        {item("careers", "careers.html", "Careers")}
-        {item("downloads", "downloads.html", "Downloads")}
-        {item("contact", "contact.html", "Contact")}
-      </ul>
-      <div class="lang"><span class="visually-hidden">Language: </span><a href="#" aria-current="true">EN</a> <a href="{CO['fr_site']}" hreflang="fr" lang="fr">FR</a></div>
-      <a class="btn btn-primary" href="{p}start-a-project.html">Start a project</a>
+      <ul class="nav-list">{"".join(items)}</ul>
     </nav>
+    <div class="header-actions">
+      <a class="icon-link" href="{p}contact.html" aria-label="Contact">{ICON['mail']}<span>Contact</span></a>
+      <a class="btn btn-primary" href="{p}start-a-project.html">Start a project</a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav"><span class="burger" aria-hidden="true"></span><span>Menu</span></button>
+    </div>
   </div>
 </header>"""
 
 
-def footer(p: str) -> str:
-    ind = "".join(f'<li><a href="{p}industries/{i["slug"]}.html">{i["name"]}</a></li>' for i in INDUSTRIES[:6])
+def footer(p: str, section: str = "") -> str:
+    social = [("LinkedIn", CO["linkedin"]), ("YouTube", CO["youtube"])]
+    soc = "".join(f'<li><a href="{u}" rel="noopener">{n}</a></li>' for n, u in social)
+    strip_hidden = " hidden" if section in ("contact", "rfq") else ""
     return f"""
-<footer class="site-footer">
+<section class="contact-strip"{strip_hidden} aria-labelledby="q-title">
   <div class="wrap">
-    <div class="title-block">
-      <div>
-        <div class="footer-brand"><span class="brand-lapp">LAPP</span><span class="brand-muller">MULLER</span></div>
-        <address>{CO['legal']}<br>{CO['street']}<br>{CO['zip']} {CO['city']}, {CO['country']}</address>
-        <p style="margin-top:.75rem"><a href="tel:{CO['phone_href']}">{CO['phone']}</a><br><a href="mailto:{CO['email']}">{CO['email']}</a></p>
-      </div>
-      <div><h2>Industries</h2><ul>{ind}<li><a href="{p}industries/index.html">All industries</a></li></ul></div>
-      <div><h2>Company</h2><ul>
-        <li><a href="{p}about.html">About us</a></li>
-        <li><a href="{p}about.html#sustainability">Sustainability</a></li>
-        <li><a href="{p}about.html#compliance">Compliance</a></li>
-        <li><a href="{p}careers.html">Careers</a></li>
-        <li><a href="{p}case-studies/index.html">Case studies</a></li></ul></div>
-      <div><h2>Work with us</h2><ul>
-        <li><a href="{p}start-a-project.html">Start a project</a></li>
-        <li><a href="{p}contact.html">Contact and opening hours</a></li>
-        <li><a href="{p}downloads.html">Downloads</a></li>
-        <li><a href="{CO['linkedin']}" rel="noopener">LinkedIn</a></li>
-        <li><a href="{CO['youtube']}" rel="noopener">YouTube</a></li></ul></div>
+    <div>
+      <h2 id="q-title">Do you have any questions?</h2>
+      <p>Our sales and engineering team in Grimaud is here for you Monday to Thursday until 17:00 and Friday until 15:30.</p>
     </div>
-    <div class="footer-legal">
+    <ul class="contact-strip-links">
+      <li><a href="tel:{CO['phone_href']}">{ICON['phone']}<span><strong>Call us</strong>{CO['phone']}</span></a></li>
+      <li><a href="mailto:{CO['email']}">{ICON['mail']}<span><strong>Write to us</strong>{CO['email']}</span></a></li>
+      <li><a href="{p}start-a-project.html">{ICON['send']}<span><strong>Project request</strong>Answer within two working days</span></a></li>
+    </ul>
+  </div>
+</section>
+<footer class="site-footer">
+  <div class="wrap footer-cols">
+    <div>
+      <p class="footer-head">Contact</p>
+      <address>{CO['legal']}<br>{CO['street']}<br>{CO['zip']} {CO['city']}<br>{CO['country']}</address>
+      <p><a href="tel:{CO['phone_href']}">{CO['phone']}</a><br><a href="mailto:{CO['email']}">{CO['email']}</a></p>
+    </div>
+    <div>
+      <p class="footer-head">Industries</p>
+      <ul>{"".join(f'<li><a href="{p}industries/{i["slug"]}.html">{i["name"]}</a></li>' for i in INDUSTRIES[:5])}<li><a href="{p}industries/index.html">All industries</a></li></ul>
+    </div>
+    <div>
+      <p class="footer-head">Service</p>
+      <ul><li><a href="{p}start-a-project.html">Start a project</a></li><li><a href="{p}capabilities.html">Solutions</a></li>
+      <li><a href="{p}downloads.html">Download center</a></li><li><a href="{p}case-studies/index.html">Case studies</a></li><li><a href="{p}contact.html">Contact</a></li></ul>
+    </div>
+    <div>
+      <p class="footer-head">Company</p>
+      <ul><li><a href="{p}about.html">About us</a></li><li><a href="{p}about.html#sustainability">Sustainability</a></li>
+      <li><a href="{p}about.html#compliance">Compliance and integrity</a></li><li><a href="{p}careers.html">Career</a></li></ul>
+      <p class="footer-head" style="margin-top:1.5rem">Follow us</p>
+      <ul class="social">{soc}</ul>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <div class="wrap">
       <span>© 2026 {CO['legal']}, a company of the <a href="{CO['group']}" rel="noopener">LAPP Group</a></span>
       <ul>
-        <li><a href="{p}legal.html#notice">Legal notice</a></li>
-        <li><a href="{p}legal.html#privacy">Privacy policy</a></li>
+        <li><a href="{p}legal.html#notice">Imprint</a></li>
         <li><a href="{p}downloads.html#commercial-documents">Terms of trade</a></li>
+        <li><a href="{p}legal.html#privacy">Privacy notice</a></li>
         <li><button type="button" data-cookie-settings>Cookie settings</button></li>
         <li><a href="{p}sitemap.xml">Sitemap</a></li>
       </ul>
@@ -443,8 +513,8 @@ def cta_band(p: str, title="Have a cable that does not exist yet?",
 <section class="cta-band" aria-labelledby="cta-title">
   <div class="wrap">
     <div><h2 id="cta-title">{title}</h2><p>{text}</p></div>
-    <div class="btn-row"><a class="btn btn-dark" href="{p}start-a-project.html{q}">Start a project</a>
-    <a class="btn btn-ghost" href="tel:{CO['phone_href']}">Call {CO['phone']}</a></div>
+    <div class="btn-row"><a class="btn btn-primary" href="{p}start-a-project.html{q}">Start a project</a>
+    <a class="btn btn-secondary" href="{p}contact.html">Contact us</a></div>
   </div>
 </section>"""
 
@@ -499,7 +569,7 @@ def write_page(path: str, title: str, description: str, body: str, section: str 
 <main id="main">
 {body.replace("{p}", p)}
 </main>
-{footer(p)}
+{footer(p, section)}
 <script src="{p}assets/js/main.js" defer></script>
 </body>
 </html>
@@ -515,11 +585,16 @@ def write_page(path: str, title: str, description: str, body: str, section: str 
 # PAGES
 # ---------------------------------------------------------------------------
 
+def card(href, art, title, text, link_label="Discover now", tag=""):
+    t = f'<p class="card-tag">{tag}</p>' if tag else ""
+    return (f'<li><a class="card" href="{href}"><div class="card-media">{art}</div>'
+            f'<div class="card-body">{t}<h3>{title}</h3><p>{text}</p><span class="card-link">{link_label}{ICON["arrow"]}</span></div></a></li>')
+
+
 def industry_tiles(featured=False):
-    lis = "".join(
-        f'<li><a href="{{p}}industries/{i["slug"]}.html">{mini(i["svg"], i["name"] + " cable cross-section")}'
-        f'<h3>{i["name"]}</h3><p>{i["short"]}</p></a></li>' for i in INDUSTRIES)
-    return f'<ul class="industry-list{" featured" if featured else ""}">{lis}</ul>'
+    return '<ul class="card-grid">' + "".join(
+        card(f'{{p}}industries/{i["slug"]}.html', mini(i["svg"], i["name"] + " cable cross-section"), i["name"], i["short"])
+        for i in INDUSTRIES) + "</ul>"
 
 
 def process_list():
@@ -528,99 +603,146 @@ def process_list():
 
 def case_cards(slugs=None):
     items = [CASE[s] for s in slugs] if slugs else CASES
-    return '<div class="cases">' + "".join(
-        f'<a class="case" href="{{p}}case-studies/{c["slug"]}.html"><div class="case-art">{cable_run(c["art"])}</div>'
-        f'<div class="case-body"><p class="tag">{IND[c["industry"]]["name"]}</p><h3>{c["title"]}</h3><p>{c["summary"]}</p></div></a>'
-        for c in items) + "</div>"
+    return '<ul class="card-grid cols-2">' + "".join(
+        card(f'{{p}}case-studies/{c["slug"]}.html', cable_run(c["art"]), c["title"], c["summary"],
+             "Read the case study", IND[c["industry"]]["name"])
+        for c in items) + "</ul>"
+
+
+SLIDES = [
+    {"title": "Cables built for one job, in any length",
+     "text": "Custom special cables for defence, nuclear, subsea and electrification, from a single prototype metre to full series.",
+     "cta": ("Start a project", "start-a-project.html"), "cta2": ("Discover industries", "industries/index.html"),
+     "svg": dict(conductors=3, fibres=2, armour=True, screen=True)},
+    {"title": "STS-Flex 1 kV: shore power for every vessel",
+     "text": "Flexible, abrasion-resistant shore power and charging cable for port electrification.",
+     "cta": ("Discover now", "industries/electrification.html"), "cta2": ("Download data sheet", None),
+     "svg": dict(conductors=4, pairs=2, armour=False, screen=True)},
+    {"title": "Radiation-resistant cables for nuclear sites",
+     "text": "Halogen-free, fire-retardant designs installed in EPR reactors, EDF plants, ORANO La Hague and CERN.",
+     "cta": ("Discover now", "industries/nuclear.html"), "cta2": ("Read about our process", "capabilities.html#process"),
+     "svg": dict(conductors=3, pairs=3, armour=True, screen=True)},
+]
+
+
+def hero_slider():
+    slides = []
+    for n, s in enumerate(SLIDES):
+        c1 = f'<a class="btn btn-primary" href="{{p}}{s["cta"][1]}">{s["cta"][0]}</a>'
+        href2 = s["cta2"][1]
+        if href2 is None:
+            c2 = f'<a class="btn btn-secondary" href="{CDN}/Brochures/STSflex-1kV-LAPPMuller_EN_09-2023_1__1_.pdf" rel="noopener">{s["cta2"][0]}</a>'
+        else:
+            c2 = f'<a class="btn btn-secondary" href="{{p}}{href2}">{s["cta2"][0]}</a>'
+        tag = "h1" if n == 0 else "h2"
+        art = cross_section(size=520, label="Cable cross-section", cls="stage-art", **s["svg"])
+        slides.append(
+            f'<div class="slide" id="slide-{n+1}" role="group" aria-roledescription="slide" aria-label="{n+1} of {len(SLIDES)}"{"" if n == 0 else " hidden"}>'
+            f'<div class="stage-visual">{art}</div>'
+            f'<div class="wrap"><div class="stage-box"><{tag}>{s["title"]}</{tag}><p>{s["text"]}</p><div class="btn-row">{c1}{c2}</div></div></div></div>')
+    dots = "".join(
+        f'<button type="button" class="dot" aria-controls="slide-{n+1}" aria-label="Show slide {n+1}: {s["title"]}"{" aria-current=\"true\"" if n == 0 else ""}></button>'
+        for n, s in enumerate(SLIDES))
+    return (f'<section class="stage" aria-roledescription="carousel" aria-label="Highlights">{"".join(slides)}'
+            f'<div class="wrap stage-controls"><button type="button" class="stage-prev" aria-label="Previous slide">{ICON["arrow"]}</button>'
+            f'<div class="dots">{dots}</div><button type="button" class="stage-next" aria-label="Next slide">{ICON["arrow"]}</button></div></section>')
 
 
 def build_home():
-    hero_svg = cross_section(conductors=3, fibres=2, armour=True, screen=True, callouts=True,
-                             label="Cross-section of a hybrid special cable with sheath, armour, conductors, fibres and strength member")
+    ranges = [
+        card(f"{CDN}/Brochures/STSflex-1kV-LAPPMuller_EN_09-2023_1__1_.pdf", mini(dict(conductors=4, pairs=2, armour=False, screen=True), "STS-Flex"),
+             "STS-Flex 1 kV", "Shore power and charging cable for vessels.", "Download data sheet", "Electrification"),
+        card(f"{CDN}/Brochures/flyer_Version_finale.pdf", mini(dict(conductors=4, armour=False, screen=False), "MULL'AIR 400"),
+             "MULL'AIR 400", "400 Hz ground power cable range for parked aircraft.", "Download flyer", "Electrification"),
+        card(f"{CDN}/asm_anglais_LIGHT.pdf", mini(dict(conductors=3, fibres=3, armour=True), "Marine cables"),
+             "Marine and underwater range", "ROV tethers, umbilicals, floating and lift cables.", "Download catalogue", "Marine and subsea"),
+        card("{p}industries/nuclear.html", mini(dict(conductors=3, pairs=3, armour=True, screen=True), "Nuclear cables"),
+             "Nuclear cables", "Halogen-free, C1/SH fire-retardant, radiation resistant.", "Discover now", "Nuclear"),
+    ]
+    tabs = [
+        ("industries", "Industries", industry_tiles()),
+        ("ranges", "Product ranges", '<ul class="card-grid">' + "".join(ranges) + "</ul>"),
+        ("cases", "Case studies", case_cards()),
+    ]
+    tablist = "".join(
+        f'<button role="tab" id="tab-{k}" aria-controls="panel-{k}" aria-selected="{"true" if n == 0 else "false"}"{"" if n == 0 else " tabindex=\"-1\""}>{label}</button>'
+        for n, (k, label, _) in enumerate(tabs))
+    panels = "".join(
+        f'<div role="tabpanel" id="panel-{k}" aria-labelledby="tab-{k}"{"" if n == 0 else " hidden"}>{content}</div>'
+        for n, (k, _, content) in enumerate(tabs))
+
+    services = [
+        ("send", "Project request", "Describe your application online. An engineer replies within two working days.", "start-a-project.html", "Start a project"),
+        ("gear", "Engineering and assemblies", "Design office, R&amp;D, production and terminations under one roof.", "capabilities.html", "Discover now"),
+        ("doc", "Download center", "Catalogues, data sheets and terms of trade.", "downloads.html", "Go to downloads"),
+    ]
+    svc = "".join(
+        f'<li><a class="service-tile" href="{{p}}{h}"><span class="service-icon">{ICON[ic]}</span><h3>{t}</h3><p>{d}</p><span class="card-link">{l}{ICON["arrow"]}</span></a></li>'
+        for ic, t, d, h, l in services)
+
+    toplinks = [("Defence and naval", "industries/defence.html"), ("Shore power", "industries/electrification.html"),
+                ("Nuclear", "industries/nuclear.html"), ("ROV tethers and umbilicals", "industries/marine-subsea.html"),
+                ("Robotics", "industries/robotics-automation.html"), ("Connectors and assemblies", "capabilities.html#assemblies"),
+                ("Case studies", "case-studies/index.html"), ("Career", "careers.html")]
+    tl = "".join(f'<li><a href="{{p}}{h}">{t}</a></li>' for t, h in toplinks)
+
     body = f"""
-<section class="hero">
+{hero_slider()}
+
+<section class="section" aria-labelledby="disc-title">
   <div class="wrap">
+    <h2 id="disc-title">Discover LAPP Muller</h2>
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label="Discover LAPP Muller">{tablist}</div>
+      {panels}
+    </div>
+  </div>
+</section>
+
+<section class="section section-grey" aria-labelledby="svc-title">
+  <div class="wrap">
+    <h2 id="svc-title">Our range of services for you</h2>
+    <ul class="service-grid">{svc}</ul>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="more-title">
+  <div class="wrap split">
     <div>
-      <h1>Cables built for one job, in any length.</h1>
-      <p class="lead">LAPP Muller designs and manufactures special cables for defence, nuclear, subsea and electrification projects, from a single prototype metre to full series.</p>
-      <div class="btn-row"><a class="btn btn-primary" href="{{p}}start-a-project.html">Start a project</a>
-      <a class="btn btn-ghost" href="{{p}}industries/index.html">See industries</a></div>
-      <dl class="hero-facts">
-        <div><dt>LAPP Group technology centre</dt><dd>Since {CO['since']}</dd></div>
-        <div><dt>special cable designs on record</dt><dd>~60,000</dd></div>
-        <div><dt>minimum order length</dt><dd>None</dd></div>
+      <h2 id="more-title">More than just a cable manufacturer</h2>
+      <p class="lead">Since {CO['since']}, LAPP Muller in Grimaud has been the LAPP Group's technology centre for special cables. We design, produce, terminate and certify cables that exist in no catalogue.</p>
+      <dl class="facts">
+        <div><dt>Part of the LAPP Group</dt><dd>Since {CO['since']}</dd></div>
+        <div><dt>Special cable designs on record</dt><dd>~60,000</dd></div>
+        <div><dt>Minimum order length</dt><dd>None</dd></div>
       </dl>
+      <div class="btn-row"><a class="btn btn-secondary" href="{{p}}about.html">About us</a></div>
     </div>
-    {hero_svg}
-  </div>
-</section>
-
-<section class="section" aria-labelledby="ind-title">
-  <div class="wrap">
-    <div class="section-head">
-      <h2 id="ind-title">Where our cables work</h2>
-      <p class="muted">Every cable starts from your application. Choose your industry to see typical designs, reference projects and specifications.</p>
-    </div>
-    {industry_tiles(featured=True)}
-  </div>
-</section>
-
-<section class="section section-dark on-dark" aria-labelledby="ref-title">
-  <div class="wrap refs">
     <div>
-      <h2 id="ref-title">Trusted where failure is not an option</h2>
-      <p class="lead">Our radiation-resistant and subsea cables are installed at sites with the strictest requirements.</p>
-      <div class="btn-row"><a class="btn btn-ghost" href="{{p}}case-studies/index.html">Read the case studies</a></div>
+      <h3 class="sub-head">Trusted at demanding sites</h3>
+      <ul class="ref-list">
+        <li>EPR reactors<span>Finland, France and the United Kingdom</span></li>
+        <li>EDF power plants<span>900 and 1300 MW units</span></li>
+        <li>ORANO La Hague<span>Nuclear fuel reprocessing</span></li>
+        <li>CERN<span>Research infrastructure</span></li>
+      </ul>
     </div>
-    <ul class="ref-list">
-      <li>EPR reactors<span>Finland, France and the United Kingdom</span></li>
-      <li>EDF power plants<span>900 and 1300 MW units</span></li>
-      <li>ORANO La Hague<span>Nuclear fuel reprocessing</span></li>
-      <li>CERN<span>Research infrastructure</span></li>
-      <li>Naval programmes<span>Tow cables and umbilicals</span></li>
-      <li>Ports and airports<span>Shore power and 400 Hz ground power</span></li>
-    </ul>
   </div>
 </section>
 
-<section class="section" aria-labelledby="proc-title">
+<section class="section section-grey" aria-labelledby="proc-title">
   <div class="wrap">
-    <div class="section-head">
-      <h2 id="proc-title">From brief to delivery in six steps</h2>
-      <p class="muted">One project team in Grimaud follows your cable from the first question to repeat orders.</p>
-    </div>
+    <h2 id="proc-title">From brief to delivery in six steps</h2>
     {process_list()}
   </div>
 </section>
 
-<section class="section section-paper" aria-labelledby="why-title">
-  <div class="wrap split">
-    <div>
-      <h2 id="why-title">Why engineers come to us</h2>
-      <p class="lead">Standard catalogues stop where your application starts. Our design office, R&amp;D and production sit under one roof, so a special cable is our normal job.</p>
-      <p><a href="{{p}}capabilities.html">See our capabilities</a></p>
-    </div>
-    <ul class="checklist">
-      <li>Fully custom constructions: electrical, optical, pneumatic, hydraulic and strength elements in one cable</li>
-      <li>Short lengths and prototypes, from miniaturised to large cross-sections</li>
-      <li>Short lead times thanks to streamlined processes</li>
-      <li>Connectors, terminations and cable equipment supplied ready to install</li>
-      <li>Certification with the body your project requires</li>
-      <li>The resources of the LAPP Group behind every order</li>
-    </ul>
-  </div>
-</section>
-
-<section class="section" aria-labelledby="case-title">
+<section class="section toplinks" aria-labelledby="top-title">
   <div class="wrap">
-    <div class="section-head">
-      <h2 id="case-title">Recent projects</h2>
-      <p class="muted">How we solved two demanding subsea and naval briefs.</p>
-    </div>
-    {case_cards()}
+    <h2 id="top-title">Top links</h2>
+    <ul class="chip-list">{tl}</ul>
   </div>
 </section>
-{cta_band("{p}")}
 """
     ld = {
         "@context": "https://schema.org", "@type": "Organization", "name": CO["name"], "legalName": CO["legal"],
