@@ -6,8 +6,19 @@ Komplett neu aufgebauter Webauftritt für [lappmuller.lappgroup.com/en](https://
 
 ## Ansehen
 
-- **Lokal:** `docs/index.html` im Browser öffnen, ohne Server und ohne Build-Schritt.
-- **Online über GitHub Pages:** Settings → Pages → Source „Deploy from a branch“, Branch `main`, Ordner `/docs`.
+- **Lokal:** `docs/index.html` im Browser öffnen, ohne Server und ohne Build-Schritt. Die Fotos werden dabei direkt von Wikimedia Commons geladen.
+- **Online über GitHub Pages (empfohlen):** Settings → Pages → Source **„GitHub Actions“**. Der Workflow `.github/workflows/pages.yml` lädt bei jedem Push auf `main` die Fotos herunter, baut die Seite und veröffentlicht sie, sodass die Bilder selbst gehostet werden.
+- Alternativ: Source „Deploy from a branch“, Branch `main`, Ordner `/docs` (Fotos dann von Wikimedia eingebunden).
+
+## Bilder
+
+Frei lizenzierte Fotos von Wikimedia Commons, überwiegend gemeinfrei (U.S. Navy, U.S. Air Force, BSEE). Quellen, Urheber und Lizenzen stehen auf der Seite **Image credits** (Footer) und in `build.py` (`IMAGES`). Zum lokalen Selbsthosten:
+
+```bash
+python3 tools/fetch_images.py && python3 build.py
+```
+
+Die Fotos sind Platzhalter, bis eigene Aufnahmen aus Fertigung und Prüffeld vorliegen.
 
 ## Struktur
 

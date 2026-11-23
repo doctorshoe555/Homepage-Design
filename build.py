@@ -46,6 +46,68 @@ CO = {
 CDN = "https://t3.lappcdn.com/fileadmin/DAM/Lapp_Muller"
 
 # ---------------------------------------------------------------------------
+# IMAGES: freely licensed photos from Wikimedia Commons
+# Hotlinked via Special:FilePath until tools/fetch_images.py (or the Pages
+# workflow) has stored them in src/assets/img/<key>.jpg; then local copies win.
+# ---------------------------------------------------------------------------
+from urllib.parse import quote
+
+PD_US = "Public domain (work of the U.S. federal government)"
+CC_SEE = "Creative Commons licence, see source page"
+
+IMAGES = {
+    "cable-xsection": ("Wolfe Island Wind Project Submarine Power Cable.jpg", "Wikimedia Commons contributor", CC_SEE,
+                       "Cross-section of a three-core submarine power cable with fibre optics and steel armour"),
+    "shore-power": ("US Navy 100302-N-2147L-003 Sailors remove a shore power cable aboard SS New York (LPD 21).jpg",
+                    "U.S. Navy, MC1 Corey Lewis", PD_US, "Sailors handling a shore power cable aboard a ship in port"),
+    "nuclear": ("Flamanville Nuclear Plant 2023.jpg", "JKremona", CC_SEE,
+                "Flamanville nuclear power plant seen from the sea, with the EPR reactor in the foreground"),
+    "submarine": ("US Navy 110729-N-FG395-040 USS Tennessee (SSBN 734) is pierside at Naval Submarine Base Kings Bay.jpg",
+                  "U.S. Navy, MC1 James Kimber", PD_US, "Submarine moored at a pier"),
+    "submarine-2": ("US Navy 071211-N-9588L-003 The Ohio class guided missile submarine USS Georgia (SSGN 729) rests pierside at Naval Station Norfolk.jpg",
+                    "U.S. Navy", PD_US, "Submarine resting pierside at a naval station"),
+    "rov": ("US Navy 020524-N-0096V-002 Remotely Operated Vehicle (ROV).jpg", "U.S. Navy", PD_US,
+            "Crew recovering a remotely operated underwater vehicle on deck"),
+    "subsea-cable": ("US Navy 090608-N-3404S-306 Kevin Pollard ties down a 15,000-pound undersea cable for transportation to Brazil.jpg",
+                     "U.S. Navy", PD_US, "Large coil of undersea cable being secured for transport"),
+    "ground-power": ("A U.S. Air Force Airman pushes ground power equipment during Red Flag-Alaska 18-3 at Joint Base Elmendorf-Richardson, Alaska, Aug. 13, 2018.jpg",
+                     "U.S. Air Force, Senior Airman Curt Beach", PD_US, "Ground power equipment being moved to an aircraft on the apron"),
+    "offshore": ("BHP-Shenzi deepwater offshore production platform (51115227966).jpg", "Bureau of Safety and Environmental Enforcement (BSEE)",
+                 "Public Domain Mark 1.0", "Deepwater offshore production platform at sea"),
+    "robots": ("Car Manufacturing Robotic Arms (4488278347).jpg", "Razvan Orendovici", CC_SEE,
+               "Industrial robot arms on a car production line"),
+    "mri": ("An MRI scanner.JPG", "Walter Davies", CC_SEE, "MRI scanner in a hospital examination room"),
+    "chairlift": ("Jasná Ski Resort - chairlift1.JPG", "Pudelek (Marcin Szala)", CC_SEE, "Chairlift above a snowy ski slope"),
+    "testing": ("US Navy 031016-N-2143T-002 Interior Communications Electrician 3rd Class Jonathan Livingstone from St. Louis, Mo., takes resistance readings on wires.jpg",
+                "U.S. Navy", PD_US, "Electrician taking resistance readings on cable conductors"),
+    "grimaud": ("Panorama de Grimaud.jpg", "Gilles Perréal", CC_SEE, "Panorama of the hilltop village of Grimaud in the Var"),
+    "grimaud-street": ("Rue des Templiers à Grimaud.jpg", "Grimaud Tourisme", CC_SEE, "Arched medieval street in the village of Grimaud"),
+}
+
+
+def commons_page(key):
+    return "https://commons.wikimedia.org/wiki/File:" + quote(IMAGES[key][0].replace(" ", "_"))
+
+
+def commons_src(key, width):
+    return "https://commons.wikimedia.org/wiki/Special:FilePath/" + quote(IMAGES[key][0].replace(" ", "_")) + f"?width={width}"
+
+
+def img(key, cls="", sizes="(max-width: 760px) 100vw, 50vw", eager=False):
+    """<img> for a Commons photo; uses the self-hosted copy when it exists."""
+    alt = html.escape(IMAGES[key][3])
+    load = 'fetchpriority="high"' if eager else 'loading="lazy"'
+    local = SRC / "assets" / "img" / f"{key}.jpg"
+    if local.exists():
+        src = f'src="{{p}}assets/img/{key}.jpg"'
+    else:
+        src = (f'src="{commons_src(key, 1280)}" srcset="{commons_src(key, 640)} 640w, {commons_src(key, 1280)} 1280w, '
+               f'{commons_src(key, 1920)} 1920w" sizes="{sizes}"')
+    c = f' class="{cls}"' if cls else ""
+    return f'<img{c} {src} alt="{alt}" {load} decoding="async" referrerpolicy="no-referrer">'
+
+
+# ---------------------------------------------------------------------------
 # DRAWINGS: cable cross-sections are the visual signature of the site
 # ---------------------------------------------------------------------------
 
@@ -148,6 +210,7 @@ def cable_run(kind="tow"):
 INDUSTRIES = [
     {
         "slug": "defence",
+        "img": "submarine",
         "name": "Defence and naval",
         "short": "Tow cables, umbilicals and power cables for submarines, surface ships and subsea systems.",
         "lead": "Cables for naval platforms that have to survive pressure, repeated bending over sheaves and decades in service, built to your specification and qualified with you.",
@@ -167,6 +230,7 @@ INDUSTRIES = [
     },
     {
         "slug": "electrification",
+        "img": "shore-power",
         "name": "Electrification",
         "short": "Shore power cables for ports and 400 Hz ground power cables for aircraft.",
         "lead": "Port and airport electrification needs cables that are handled every day, dragged across quays and aprons, and still deliver safe power. That is the brief for STS-Flex and MULL'AIR 400.",
@@ -191,6 +255,7 @@ INDUSTRIES = [
     },
     {
         "slug": "nuclear",
+        "img": "nuclear",
         "name": "Nuclear",
         "short": "Radiation-resistant, halogen-free cables for power plants, reprocessing and research.",
         "lead": "Our radiation-resistant cables are installed in EPR reactors and in operating plants in France and abroad, as well as at reprocessing and research sites.",
@@ -210,6 +275,7 @@ INDUSTRIES = [
     },
     {
         "slug": "marine-subsea",
+        "img": "rov",
         "name": "Marine and subsea",
         "short": "ROV tethers, umbilicals, floating cables and sonar cables for the underwater world.",
         "lead": "A complete range of watertight cables for ROVs, underwater machines and offshore equipment, from neutrally buoyant tethers to armoured lift cables.",
@@ -229,6 +295,7 @@ INDUSTRIES = [
     },
     {
         "slug": "oil-gas",
+        "img": "offshore",
         "name": "Oil and gas",
         "short": "Offshore umbilicals and onshore instrumentation, control and power cables.",
         "lead": "Together with our sister company Camuna Cavi, we supply cables for offshore operations and for onshore process plants, including extreme-temperature series.",
@@ -247,6 +314,7 @@ INDUSTRIES = [
     },
     {
         "slug": "robotics-automation",
+        "img": "robots",
         "name": "Robotics and automation",
         "short": "Extra-flexible torsion and drag-chain cables for robots and moving machines.",
         "lead": "Robot arms and drag chains move millions of times. Our extra-flexible cables are built with class 6 conductors and special polymers to keep up.",
@@ -265,6 +333,7 @@ INDUSTRIES = [
     },
     {
         "slug": "medical",
+        "img": "mri",
         "name": "Medical",
         "short": "Cables for imaging, life support, therapy and surgical robots.",
         "lead": "Medical devices need cables that are small, flexible, reliable and easy to clean. We build them for scanners, ventilators, medical lasers and surgical robots.",
@@ -283,6 +352,7 @@ INDUSTRIES = [
     },
     {
         "slug": "harsh-environments",
+        "img": "chairlift",
         "name": "Mountain, handling and inspection",
         "short": "Reeling, flat, mountain, fibre and inspection cables for extreme duty.",
         "lead": "For cables under high mechanical stress, we build strong designs that resist abrasion and extreme climatic and chemical conditions, from ski lifts to pipe inspection.",
@@ -308,6 +378,7 @@ CASES = [
         "title": "Dynamic outboard tow cable for a submarine",
         "industry": "defence",
         "art": "tow",
+        "img": "submarine-2",
         "summary": "A towed cable that is paid out, recovered and bent over sheaves again and again, while carrying power and data under pressure.",
         "facts": [("Sector", "Naval defence"), ("Cable type", "Dynamic hybrid tow cable"), ("Scope", "Design, qualification, production")],
         "challenge": "The customer needed an outboard tow cable that could be deployed and recovered from a submarine many times without losing signal integrity. The cable had to resist hydrostatic pressure, high tensile load and continuous bending over the handling system.",
@@ -319,6 +390,7 @@ CASES = [
         "title": "Umbilical for the ELODIE burial machine",
         "industry": "marine-subsea",
         "art": "burial",
+        "img": "subsea-cable",
         "summary": "An umbilical that powers and controls a subsea burial machine working on the seabed.",
         "facts": [("Sector", "Subsea and defence"), ("Cable type", "Subsea umbilical"), ("Scope", "Custom design and supply")],
         "challenge": "A burial machine working on the seabed needs power, control and data from the surface vessel through one cable that is dragged, lifted and exposed to abrasion and seawater for long periods.",
@@ -498,6 +570,7 @@ def footer(p: str, section: str = "") -> str:
         <li><a href="{p}downloads.html#commercial-documents">Terms of trade</a></li>
         <li><a href="{p}legal.html#privacy">Privacy notice</a></li>
         <li><button type="button" data-cookie-settings>Cookie settings</button></li>
+        <li><a href="{p}image-credits.html">Image credits</a></li>
         <li><a href="{p}sitemap.xml">Sitemap</a></li>
       </ul>
     </div>
@@ -526,7 +599,16 @@ def crumbs(p: str, trail: list[tuple[str, str | None]]) -> str:
     return f'<nav class="crumbs" aria-label="Breadcrumb"><ol>{"".join(items)}</ol></nav>'
 
 
-def page_hero(p, trail, h1, lead, art="", extra=""):
+def page_hero(p, trail, h1, lead, art="", extra="", image=None):
+    if image:
+        badge = f'<span class="hero-badge">{art}</span>' if art else ""
+        return f"""
+<section class="page-hero has-image">
+  <div class="wrap">
+    <div class="page-hero-text">{crumbs(p, trail)}<h1>{h1}</h1><p class="lead">{lead}</p>{extra}</div>
+  </div>
+  <figure class="page-hero-media">{img(image, sizes="(max-width: 760px) 100vw, 50vw", eager=True)}{badge}</figure>
+</section>"""
     cls = "page-hero" if art else "page-hero no-art"
     return f"""
 <section class="{cls}">
@@ -585,15 +667,17 @@ def write_page(path: str, title: str, description: str, body: str, section: str 
 # PAGES
 # ---------------------------------------------------------------------------
 
-def card(href, art, title, text, link_label="Discover now", tag=""):
+def card(href, art, title, text, link_label="Discover now", tag="", photo=None):
     t = f'<p class="card-tag">{tag}</p>' if tag else ""
-    return (f'<li><a class="card" href="{href}"><div class="card-media">{art}</div>'
+    media = (f'<div class="card-media has-photo">{img(photo, sizes="(max-width: 760px) 100vw, 25vw")}<span class="card-badge">{art}</span></div>'
+             if photo else f'<div class="card-media">{art}</div>')
+    return (f'<li><a class="card" href="{href}">{media}'
             f'<div class="card-body">{t}<h3>{title}</h3><p>{text}</p><span class="card-link">{link_label}{ICON["arrow"]}</span></div></a></li>')
 
 
 def industry_tiles(featured=False):
     return '<ul class="card-grid">' + "".join(
-        card(f'{{p}}industries/{i["slug"]}.html', mini(i["svg"], i["name"] + " cable cross-section"), i["name"], i["short"])
+        card(f'{{p}}industries/{i["slug"]}.html', mini(i["svg"], i["name"] + " cable cross-section"), i["name"], i["short"], photo=i["img"])
         for i in INDUSTRIES) + "</ul>"
 
 
@@ -604,8 +688,8 @@ def process_list():
 def case_cards(slugs=None):
     items = [CASE[s] for s in slugs] if slugs else CASES
     return '<ul class="card-grid cols-2">' + "".join(
-        card(f'{{p}}case-studies/{c["slug"]}.html', cable_run(c["art"]), c["title"], c["summary"],
-             "Read the case study", IND[c["industry"]]["name"])
+        card(f'{{p}}case-studies/{c["slug"]}.html', "", c["title"], c["summary"],
+             "Read the case study", IND[c["industry"]]["name"], photo=c["img"])
         for c in items) + "</ul>"
 
 
@@ -613,15 +697,15 @@ SLIDES = [
     {"title": "Cables built for one job, in any length",
      "text": "Custom special cables for defence, nuclear, subsea and electrification, from a single prototype metre to full series.",
      "cta": ("Start a project", "start-a-project.html"), "cta2": ("Discover industries", "industries/index.html"),
-     "svg": dict(conductors=3, fibres=2, armour=True, screen=True)},
+     "svg": dict(conductors=3, fibres=2, armour=True, screen=True), "img": "cable-xsection"},
     {"title": "STS-Flex 1 kV: shore power for every vessel",
      "text": "Flexible, abrasion-resistant shore power and charging cable for port electrification.",
      "cta": ("Discover now", "industries/electrification.html"), "cta2": ("Download data sheet", None),
-     "svg": dict(conductors=4, pairs=2, armour=False, screen=True)},
+     "svg": dict(conductors=4, pairs=2, armour=False, screen=True), "img": "shore-power"},
     {"title": "Radiation-resistant cables for nuclear sites",
      "text": "Halogen-free, fire-retardant designs installed in EPR reactors, EDF plants, ORANO La Hague and CERN.",
      "cta": ("Discover now", "industries/nuclear.html"), "cta2": ("Read about our process", "capabilities.html#process"),
-     "svg": dict(conductors=3, pairs=3, armour=True, screen=True)},
+     "svg": dict(conductors=3, pairs=3, armour=True, screen=True), "img": "nuclear"},
 ]
 
 
@@ -635,7 +719,7 @@ def hero_slider():
         else:
             c2 = f'<a class="btn btn-secondary" href="{{p}}{href2}">{s["cta2"][0]}</a>'
         tag = "h1" if n == 0 else "h2"
-        art = cross_section(size=520, label="Cable cross-section", cls="stage-art", **s["svg"])
+        art = img(s["img"], cls="stage-img", sizes="100vw", eager=(n == 0))
         slides.append(
             f'<div class="slide" id="slide-{n+1}" role="group" aria-roledescription="slide" aria-label="{n+1} of {len(SLIDES)}"{"" if n == 0 else " hidden"}>'
             f'<div class="stage-visual">{art}</div>'
@@ -782,7 +866,7 @@ def build_industries():
         products = ""
         if i.get("products"):
             products = '<section class="section section-paper" aria-labelledby="prod-title"><div class="wrap"><h2 id="prod-title">Product ranges</h2><div class="products">' + "".join(
-                f'<article class="product"><h3>{n}</h3><p>{d}</p><a href="{u}" rel="noopener">{l}</a></article>' for n, d, u, l in i["products"]) + "</div></div></section>"
+                f'<article class="product">{img(pk, cls="product-img", sizes="(max-width: 760px) 100vw, 40vw") if pk else ""}<div class="product-body"><h3>{n}</h3><p>{d}</p><a href="{u}" rel="noopener">{l}</a></div></article>' for (n, d, u, l), pk in zip(i["products"], ("shore-power", "ground-power"))) + "</div></div></section>"
         cases = ""
         if i["cases"]:
             cases = f'<section class="section" aria-labelledby="c-title"><div class="wrap"><h2 id="c-title">Case studies</h2>{case_cards(i["cases"])}</div></section>'
@@ -791,7 +875,7 @@ def build_industries():
         art = cross_section(size=300, label=f"Example cross-section of a {i['name'].lower()} cable", **i["svg"])
         body = f"""
 {page_hero("{p}", [("Industries", "industries/index.html"), (i["name"], None)], i["name"] + " cables", i["lead"], art,
-           f'<div class="btn-row"><a class="btn btn-primary" href="{{p}}start-a-project.html?industry={i["slug"]}">Request a design</a></div>')}
+           f'<div class="btn-row"><a class="btn btn-primary" href="{{p}}start-a-project.html?industry={i["slug"]}">Request a design</a></div>', image=i["img"])}
 <section class="section"><div class="wrap split wide-left">
   <div class="prose">
     <h2>Typical applications</h2><ul>{apps}</ul>
@@ -819,7 +903,7 @@ def build_capabilities():
     art = cross_section(conductors=2, fibres=2, pairs=2, size=300, armour=True, screen=True, label="Hybrid cable cross-section")
     body = f"""
 {page_hero("{p}", [("Capabilities", None)], "Engineering, production and testing under one roof",
-           "We design the cable, make it, terminate it and prove it works. That is how we deliver one-off lengths quickly and series reliably.", art)}
+           "We design the cable, make it, terminate it and prove it works. That is how we deliver one-off lengths quickly and series reliably.", art, image="testing")}
 <section class="section"><div class="wrap split wide-left">
   <div class="prose">
     <h2 id="engineering">Custom cable engineering</h2>
@@ -859,8 +943,7 @@ def build_cases():
         facts = "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in c["facts"])
         ind = IND[c["industry"]]
         body = f"""
-{page_hero("{p}", [("Case studies", "case-studies/index.html"), (c["title"], None)], c["title"], c["summary"])}
-<div class="case-art" style="aspect-ratio:auto;height:clamp(10rem,22vw,16rem)">{cable_run(c["art"])}</div>
+{page_hero("{p}", [("Case studies", "case-studies/index.html"), (c["title"], None)], c["title"], c["summary"], image=c["img"])}
 <section class="section"><div class="wrap split wide-left">
   <article class="prose">
     <dl class="case-facts">{facts}</dl>
@@ -880,7 +963,7 @@ def build_cases():
 def build_about():
     body = f"""
 {page_hero("{p}", [("About us", None)], "The LAPP Group's special cable specialist",
-           f"Since {CO['since']}, LAPP Muller in Grimaud has been the technology centre of the LAPP Group for cables that do not exist in any catalogue.")}
+           f"Since {CO['since']}, LAPP Muller in Grimaud has been the technology centre of the LAPP Group for cables that do not exist in any catalogue.", image="cable-xsection")}
 <section class="section"><div class="wrap split">
   <div class="prose">
     <h2>Who we are</h2>
@@ -895,6 +978,7 @@ def build_about():
     <tr><th scope="row">Focus</th><td>Custom special cables and complete cable systems</td></tr>
   </tbody></table>
 </div></section>
+<figure class="banner">{img("grimaud", sizes="100vw")}<figcaption>Our home: Grimaud in the Var, between the Massif des Maures and the Gulf of Saint-Tropez.</figcaption></figure>
 <section class="section section-paper" id="lapp-group"><div class="wrap split">
   <div><h2>Part of the LAPP Group</h2><p class="lead">The family-owned LAPP Group, headquartered in Stuttgart, is a leading supplier of integrated solutions in cable and connection technology.</p></div>
   <div class="prose"><p>For our customers, that means the engineering focus of a specialist with the purchasing power, global presence and stability of a group. Standard products come from the LAPP catalogue; LAPP Muller takes over where the catalogue ends.</p>
@@ -921,7 +1005,7 @@ def build_about():
 def build_careers():
     body = f"""
 {page_hero("{p}", [("Careers", None)], "Build cables nobody has built before",
-           "Join a team of engineers, technicians and makers in Grimaud, between the Massif des Maures and the Gulf of Saint-Tropez.")}
+           "Join a team of engineers, technicians and makers in Grimaud, between the Massif des Maures and the Gulf of Saint-Tropez.", image="grimaud-street")}
 <section class="section"><div class="wrap split">
   <div class="prose">
     <h2>Why LAPP Muller</h2>
@@ -1076,6 +1160,22 @@ def build_legal():
     write_page("legal.html", "Legal notice and privacy | LAPP Muller", "Legal notice and privacy policy of LAPP Muller.", body)
 
 
+def build_credits():
+    rows = "".join(
+        f'<tr><td>{html.escape(IMAGES[k][3])}</td><td>{html.escape(IMAGES[k][1])}</td><td>{IMAGES[k][2]}</td>'
+        f'<td><a href="{commons_page(k)}" rel="noopener">Wikimedia Commons</a></td></tr>' for k in IMAGES)
+    body = f"""
+{page_hero("{p}", [("Image credits", None)], "Image credits", "Photos on this concept site come from Wikimedia Commons and are used under their free licences. Before go-live they are replaced by LAPP Muller's own photography.")}
+<section class="section"><div class="wrap">
+  <div class="table-scroll"><table class="spec credits"><caption>Photos used</caption>
+  <thead><tr><th scope="col">Motif</th><th scope="col">Author</th><th scope="col">Licence</th><th scope="col">Source</th></tr></thead>
+  <tbody>{rows}</tbody></table></div>
+  <p class="spec-note">Cable cross-section drawings and icons: created for this concept.</p>
+</div></section>
+"""
+    write_page("image-credits.html", "Image credits | LAPP Muller", "Sources and licences of the photos used on this site.", body)
+
+
 def build_404():
     body = f"""
 {page_hero("{p}", [("Page not found", None)], "This page does not exist",
@@ -1110,6 +1210,7 @@ def main():
     build_contact()
     build_rfq()
     build_legal()
+    build_credits()
     build_404()
     build_meta()
     print(f"Built {len(PAGES) + 1} pages into {OUT.relative_to(ROOT)}/")
